@@ -8,7 +8,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\AdminPesananController;
 use App\Http\Controllers\AuthController;
 use App\Http\Middleware\CekRoleAdmin;
-
+use App\Http\Controllers\LaporanController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -69,9 +69,8 @@ Route::middleware([CekRoleAdmin::class])->prefix('admin')->group(function () {
     Route::post('/pesanan/update/{id}', [AdminPesananController::class, 'updateStatus']);
     Route::get('/pesanan/detail/{id}', [AdminPesananController::class, 'detail']);
 
+   
     // Halaman Laporan
-    Route::get('/laporan', function () {
-        return view('admin.laporan.index'); 
-    });
+    Route::get('/laporan', [LaporanController::class, 'index']);
 
 });
