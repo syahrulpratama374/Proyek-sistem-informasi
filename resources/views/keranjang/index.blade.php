@@ -13,22 +13,36 @@
                 <th style="padding: 15px;">Harga</th>
                 <th style="padding: 15px;">Jumlah</th>
                 <th style="padding: 15px;">Total</th>
-                <th style="padding: 15px; text-align: center;">Aksi</th>
             </tr>
-            <tr style="border-bottom: 1px solid #eee;">
-                <td style="padding: 15px;">Rendang Daging</td>
-                <td style="padding: 15px;">Rp 20.000</td>
-                <td style="padding: 15px;"><input type="number" value="2" style="width: 60px; padding: 5px;"></td>
-                <td style="padding: 15px; font-weight: bold;">Rp 40.000</td>
-                <td style="padding: 15px; text-align: center;">
-                    <button style="background: none; border: none; color: red; cursor: pointer; font-weight: bold;">X Hapus</button>
-                </td>
-            </tr>
+            
+            @php $total_belanja = 0; @endphp
+            
+            @if(session('keranjang'))
+                @foreach(session('keranjang') as $id => $item)
+                    @php 
+                        $subtotal = $item['harga'] * $item['jumlah'];
+                        $total_belanja += $subtotal;
+                    @endphp
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 15px;">{{ $item['nama_menu'] }}</td>
+                        <td style="padding: 15px;">Rp {{ number_format($item['harga'], 0, ',', '.') }}</td>
+                        <td style="padding: 15px;">{{ $item['jumlah'] }} Porsi</td>
+                        <td style="padding: 15px; font-weight: bold;">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                    </tr>
+                @endforeach
+            @else
+                <tr>
+                    <td colspan="4" style="padding: 20px; text-align: center; color: #888;">Keranjang Anda masih kosong. Yuk pesan makanan!</td>
+                </tr>
+            @endif
         </table>
 
         <div style="text-align: right; margin-top: 30px;">
-            <h3 style="margin-bottom: 20px;">Total Pembayaran: <span style="color: orange;">Rp 40.000</span></h3>
-            <a href="/checkout" style="padding: 12px 25px; background: orange; color: white; text-decoration: none; font-weight: bold; border-radius: 4px;">Lanjut Cek Out</a>
+            <h3 style="margin-bottom: 20px;">Total Pembayaran: <span style="color: orange;">Rp {{ number_format($total_belanja, 0, ',', '.') }}</span></h3>
+            
+            @if(session('keranjang'))
+                <a href="/checkout" style="padding: 12px 25px; background: orange; color: white; text-decoration: none; font-weight: bold; border-radius: 4px;">Lanjut Cek Out</a>
+            @endif
         </div>
     </div>
 </div>

@@ -19,12 +19,22 @@
     </aside>
 
     <main style="flex: 1; padding: 30px; box-sizing: border-box;">
-        <header style="background: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; justify-content: space-between;">
+        
+        <header style="background: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
             <h3 style="margin: 0; color: #333;">@yield('header_title', 'Dashboard')</h3>
-            <div>Halo, Admin!</div>
+            
+            <div style="display: flex; align-items: center; gap: 15px;">
+                @auth
+                    <span style="font-weight: bold; color: orange;">Halo, {{ Auth::user()->name }}</span>
+                    <a href="/logout" style="text-decoration: none; color: red; font-size: 14px; border-left: 2px solid #eee; padding-left: 15px;">Logout</a>
+                @else
+                    <span>Halo, Admin!</span>
+                @endauth
+            </div>
         </header>
 
         @yield('content')
+        
     </main>
 
 </body>

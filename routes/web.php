@@ -3,6 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\AdminProdukController;
+use App\Http\Controllers\KeranjangController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\AdminPesananController;
+use App\Http\Controllers\AuthController;
+use App\Http\Middleware\CekRoleAdmin;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,55 +19,57 @@ use App\Http\Controllers\AdminProdukController;
 // A. SISI PELANGGAN (FRONT-END)
 // ==========================================
 
-// 1. Halaman Awal (Sekarang ditangani oleh Controller agar mengambil data Database)
+// Halaman Awal
 Route::get('/', [MenuController::class, 'index']);
 
 // Halaman Autentikasi
-Route::get('/login', function () {
-    return view('auth.login'); 
-});
-// Route::post('/login', [AuthController::class, 'login']); 
+Route::get('/login', function () { return view('auth.login'); });
+Route::post('/login/proses', [AuthController::class, 'login']);
 
-Route::get('/register', function () {
-    return view('auth.register'); 
-});
+Route::get('/register', function () { return view('auth.register'); });
+Route::post('/register/proses', [AuthController::class, 'register']);
 
-// Halaman Menu & Keranjang
-Route::get('/menu/detail', function () {
-    return view('menu.detail'); 
-});
+Route::get('/logout', [AuthController::class, 'logout']);
 
-Route::get('/keranjang', function () {
-    return view('keranjang.index');
-});
+// Halaman Detail Menu
+Route::get('/menu/{id}', [MenuController::class, 'detail']);
 
-// Halaman Cek Out
-Route::get('/checkout', function () {
-    return view('checkout.index');
-});
+// Halaman Keranjang
+Route::get('/keranjang', [KeranjangController::class, 'index']);
+Route::post('/keranjang/tambah', [KeranjangController::class, 'tambah']);
+
+// Halaman Cek Out & Proses Pesanan
+Route::get('/checkout', [CheckoutController::class, 'index']);
+Route::post('/checkout/proses', [CheckoutController::class, 'proses']);
+Route::get('/checkout/sukses', [CheckoutController::class, 'sukses']);
 
 
 // ==========================================
 // B. SISI ADMIN (BACK-END)
 // ==========================================
-// Semua rute di dalam grup ini otomatis diawali dengan '/admin'
+// INI BAGIAN YANG DITAMBAHKAN MIDDLEWARE SATPAM:
 
-Route::prefix('admin')->group(function () {
+Route::middleware([CekRoleAdmin::class])->prefix('admin')->group(function () {
     
-    // Halaman Dashboard Admin -> (URL: /admin/dashboard)
+    // Halaman Dashboard Admin
     Route::get('/dashboard', function () {
         return view('admin.dashboard'); 
     });
-    
-    // Halaman Manajemen Produk / Menu -> (URL: /admin/produk)
-    Route::get('/produk', [AdminProdukController::class, 'index']);
 
-    // Halaman Kelola Pesanan & Kasir -> (URL: /admin/pesanan)
-    Route::get('/pesanan', function () {
-        return view('admin.pesanan.index'); 
-    });
+    // Halaman Manajemen Produk / Menu
+    Route::get('/produk', [AdminProdukController::class, 'index']); 
+    Route::get('/produk/tambah', [AdminProdukController::class, 'create']);
+    Route::post('/produk/simpan', [AdminProdukController::class, 'store']);
+    Route::get('/produk/edit/{id}', [AdminProdukController::class, 'edit']);
+    Route::post('/produk/update/{id}', [AdminProdukController::class, 'update']);
+    Route::get('/produk/hapus/{id}', [AdminProdukController::class, 'destroy']);
 
-    // Halaman Laporan Penjualan -> (URL: /admin/laporan)
+    // Halaman Kelola Pesanan & Kasir
+    Route::get('/pesanan', [AdminPesananController::class, 'index']); 
+    Route::post('/pesanan/update/{id}', [AdminPesananController::class, 'updateStatus']);
+    Route::get('/pesanan/detail/{id}', [AdminPesananController::class, 'detail']);
+
+    // Halaman Laporan
     Route::get('/laporan', function () {
         return view('admin.laporan.index'); 
     });

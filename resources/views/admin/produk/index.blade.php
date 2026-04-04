@@ -21,11 +21,13 @@
             <td style="padding: 12px; border: 1px solid #ddd;">{{ $item->nama_menu }}</td>
             <td style="padding: 12px; border: 1px solid #ddd;">{{ $item->kategori }}</td>
             <td style="padding: 12px; border: 1px solid #ddd;">Rp {{ number_format($item->harga, 0, ',', '.') }}</td>
+            
             <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">
-                <a href="#" style="background: orange; color: white; text-decoration: none; padding: 6px 12px; border-radius: 4px; margin-right: 5px; font-size: 14px;">Edit</a>
-                <a href="#" style="background: red; color: white; text-decoration: none; padding: 6px 12px; border-radius: 4px; font-size: 14px;">Hapus</a>
+                <a href="/admin/produk/edit/{{ $item->id }}" style="background: orange; color: white; text-decoration: none; padding: 6px 12px; border-radius: 4px; margin-right: 5px; font-size: 14px;">Edit</a>
+                
+                <a href="/admin/produk/hapus/{{ $item->id }}" onclick="return confirm('Apakah Anda yakin ingin menghapus menu ini?')" style="background: red; color: white; text-decoration: none; padding: 6px 12px; border-radius: 4px; font-size: 14px;">Hapus</a>
             </td>
-        </tr>
+            </tr>
         @endforeach
     </table>
 @endsection

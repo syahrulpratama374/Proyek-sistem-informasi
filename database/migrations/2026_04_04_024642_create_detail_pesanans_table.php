@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('detail_pesanans', function (Blueprint $table) {
+            $table->id();
+            // Menyambungkan dengan tabel pesanans
+            $table->foreignId('pesanan_id')->constrained('pesanans')->onDelete('cascade');
+            // Menyambungkan dengan tabel menus
+            $table->foreignId('menu_id')->constrained('menus')->onDelete('cascade');
+            $table->integer('jumlah');
+            $table->integer('harga'); // Harga saat dibeli (jaga-jaga jika harga menu naik suatu saat nanti)
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('detail_pesanans');
+    }
+};
