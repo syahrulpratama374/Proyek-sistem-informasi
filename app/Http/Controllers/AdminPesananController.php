@@ -22,9 +22,8 @@ class AdminPesananController extends Controller
             'status' => $request->status
         ]);
 
-        return redirect('/admin/pesanan');
+        return redirect('/admin/pesanan')->with('success', 'Status pesanan berhasil diperbarui menjadi: ' . strtoupper($request->status));
     }
-
  
     public function detail($id)
     {

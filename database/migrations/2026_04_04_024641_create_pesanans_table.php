@@ -13,12 +13,21 @@ return new class extends Migration
     {
         Schema::create('pesanans', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_pelanggan');
-            $table->text('alamat')->nullable(); // Boleh kosong jika makan di tempat
-            $table->string('metode_pembayaran');
-            $table->integer('total_harga');
-            $table->string('status')->default('Menunggu Pembayaran'); // Status awal
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('kode_pesanan')->unique();
+            
+            // Tambahan berdasarkan wireframe
+            $table->string('nomor_meja')->nullable(); 
+            $table->enum('metode_pembayaran', ['tunai', 'transfer', 'qris'])->default('tunai');
+            
+            $table->enum('status', ['pending', 'diproses', 'selesai', 'batal'])->default('pending');
+            $table->unsignedBigInteger('total_harga')->default(0);
+            $table->text('catatan')->nullable();
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['status', 'created_at']);
+            $table->index('user_id');
         });
     }
 

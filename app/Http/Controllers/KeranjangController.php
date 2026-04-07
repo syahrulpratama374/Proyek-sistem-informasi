@@ -15,28 +15,22 @@ class KeranjangController extends Controller
         return view('keranjang.index', compact('keranjang'));
     }
 
-    // Fungsi untuk memasukkan menu ke keranjang
     public function tambah(Request $request)
     {
-        $menu = Menu::find($request->menu_id);
+        $menu = Menu::findOrFail($request->menu_id);
         $keranjang = session()->get('keranjang', []);
 
-        // Jika menu sudah ada di keranjang, cukup tambahkan jumlah porsinya
         if(isset($keranjang[$request->menu_id])) {
-            $keranjang[$request->menu_id]['jumlah'] += $request->jumlah;
+            $keranjang[$request->menu_id]['qty'] += $request->qty; // Ubah jumlah jadi qty
         } else {
-            // Jika belum ada, buat data baru di keranjang
             $keranjang[$request->menu_id] = [
                 "nama_menu" => $menu->nama_menu,
-                "jumlah" => $request->jumlah,
+                "qty" => $request->qty, // Ubah jumlah jadi qty
                 "harga" => $menu->harga
             ];
         }
 
-        // Simpan kembali ke session
         session()->put('keranjang', $keranjang);
-
-        // Arahkan pelanggan ke halaman keranjang
         return redirect('/keranjang');
     }
 }

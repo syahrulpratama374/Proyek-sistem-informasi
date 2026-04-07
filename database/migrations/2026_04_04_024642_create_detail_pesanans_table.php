@@ -13,12 +13,10 @@ return new class extends Migration
     {
         Schema::create('detail_pesanans', function (Blueprint $table) {
             $table->id();
-            // Menyambungkan dengan tabel pesanans
-            $table->foreignId('pesanan_id')->constrained('pesanans')->onDelete('cascade');
-            // Menyambungkan dengan tabel menus
-            $table->foreignId('menu_id')->constrained('menus')->onDelete('cascade');
-            $table->integer('jumlah');
-            $table->integer('harga'); // Harga saat dibeli (jaga-jaga jika harga menu naik suatu saat nanti)
+            $table->foreignId('pesanan_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('menu_id')->constrained()->restrictOnDelete();
+            $table->unsignedInteger('qty');
+            $table->unsignedBigInteger('harga_satuan'); // snapshot harga saat pesan
             $table->timestamps();
         });
     }

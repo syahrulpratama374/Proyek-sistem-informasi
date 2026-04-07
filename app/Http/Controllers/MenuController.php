@@ -7,19 +7,27 @@ use Illuminate\Http\Request;
 
 class MenuController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $menus = Menu::all();
+     
+        $query = Menu::where('tersedia', true);
+
+        if ($request->has('cari') && $request->cari != '') {
+            $query->where('nama_menu', 'like', '%' . $request->cari . '%');
+        }
+
+        if ($request->has('kategori') && $request->kategori != '') {
+            $query->where('kategori', $request->kategori);
+        }
+
+        $menus = $query->get();
         return view('awal', compact('menus'));
     }
 
-    // --- TAMBAHKAN FUNGSI INI ---
     public function detail($id)
     {
-        // Cari data menu berdasarkan ID
-        $menu = Menu::find($id); 
+        $menu = Menu::findOrFail($id); 
         
-        // Tampilkan halaman detail dengan membawa data menu tersebut
         return view('menu.detail', compact('menu'));
     }
 }

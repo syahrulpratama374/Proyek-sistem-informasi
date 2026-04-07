@@ -4,18 +4,29 @@ namespace App\Http\Controllers;
 
 use App\Models\Pesanan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class LaporanController extends Controller
 {
-    public function index()
-    {
-        // 1. Ambil HANYA pesanan yang statusnya sudah 'Selesai'
-        $pesanans = Pesanan::where('status', 'Selesai')->orderBy('created_at', 'desc')->get();
+    public function index(Request $request) {
+        
+        $tanggal = $request->input('tanggal', today()->toDateString());
 
-        // 2. Hitung total pendapatan dari semua pesanan yang selesai
-        $total_pendapatan = $pesanans->sum('total_harga');
+        $laporan = Cache::remember(
+            "laporan_{$tanggal}", 300, // cache 5 menit
+            function () use ($tanggal) {
+                return Pesanan::with(['detailPesanans.menu', 'user'])
+                    ->whereDate('created_at', $tanggal)
+                    ->where('status', 'selesai')
+                    ->get();
+            }
+        );
 
-        // 3. Kirim datanya ke halaman laporan
-        return view('admin.laporan.index', compact('pesanans', 'total_pendapatan'));
+        $totalPendapatan = $laporan->sum('total_harga');
+        $totalPesanan    = $laporan->count();
+
+        return view('admin.laporan.index', compact(
+            'laporan', 'totalPendapatan', 'totalPesanan', 'tanggal'
+        ));
     }
 }

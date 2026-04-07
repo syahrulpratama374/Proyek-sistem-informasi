@@ -9,38 +9,57 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // Proses pendaftaran akun baru
+
     public function register(Request $request)
     {
+        
+        $request->validate([
+            'name'       => 'required|string|max:255',
+            'no_telepon' => 'required|string|max:20',
+            'email'      => 'required|string|email|max:255|unique:users', 
+            'password'   => 'required|string|min:8', 
+        ], [
+           
+            'password.min' => 'Maaf, password wajib terdiri dari minimal 8 karakter!',
+            'email.unique' => 'Email ini sudah terdaftar. Silakan gunakan email lain atau coba login.'
+        ]);
+
+        
         User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password), // Password wajib dienkripsi
-            'role' => 'pelanggan' // Paksa otomatis jadi pelanggan
+            'password' => Hash::make($request->password), 
+            'no_telepon' => $request->no_telepon,
+            'role' => 'pelanggan' 
         ]);
 
-        return redirect('/login');
+       
+        return redirect('/login')->with('success', 'Pendaftaran berhasil! Silakan login.');
     }
 
-    // Proses masuk (login)
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
 
+        
         if (Auth::attempt($credentials)) {
-            // Jika password benar, cek role-nya
+            
+          
+            $request->session()->regenerate(); 
+
+            
             if (Auth::user()->role == 'admin') {
-                return redirect('/admin/dashboard'); // Admin masuk ke dapur
+                return redirect('/admin/dashboard');
             } else {
-                return redirect('/'); // Pelanggan masuk ke halaman depan
+                return redirect('/');
             }
         }
 
-        // Jika salah password
-        return redirect('/login');
+        
+        return back()->with('error', 'Email atau Password salah!');
     }
 
-    // Proses keluar (logout)
+  
     public function logout()
     {
         Auth::logout();

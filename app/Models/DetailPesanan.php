@@ -12,11 +12,13 @@ class DetailPesanan extends Model
     protected $fillable = [
         'pesanan_id',
         'menu_id',
-        'jumlah',
-        'harga'
+        'qty',          
+        'harga_satuan'   
     ];
-
-  
+    public function pesanan()
+    {
+        return $this->belongsTo(Pesanan::class);
+    }
     public function menu()
     {
         return $this->belongsTo(Menu::class);
