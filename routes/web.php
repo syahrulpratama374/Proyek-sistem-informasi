@@ -14,13 +14,14 @@ use App\Http\Controllers\LaporanController;
 | AREA PUBLIK (Bisa diakses tanpa perlu login)
 |--------------------------------------------------------------------------
 */
-// Tampilan awal (Katalog Menu)
 Route::get('/', [MenuController::class, 'index']);
 Route::get('/menu/{id}', [MenuController::class, 'detail']);
 
-// Fitur Keranjang (Disimpan di session, jadi tidak perlu login dulu)
 Route::get('/keranjang', [KeranjangController::class, 'index']);
 Route::post('/keranjang/tambah', [KeranjangController::class, 'tambah']);
+// Rute untuk menambah/mengurangi dan menghapus item
+Route::post('/keranjang/{id}/update', [KeranjangController::class, 'update']);
+Route::get('/keranjang/{id}/hapus', [KeranjangController::class, 'hapus']);
 
 // Autentikasi (Login & Register)
 Route::get('/login', function () { return view('auth.login'); })->name('login');
@@ -36,7 +37,6 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
-    // Proses Checkout
     Route::get('/checkout', [CheckoutController::class, 'index']);
     Route::post('/checkout/proses', [CheckoutController::class, 'proses']);
     Route::get('/checkout/sukses', [CheckoutController::class, 'sukses']);
@@ -48,20 +48,13 @@ Route::middleware('auth')->group(function () {
 | AREA ADMIN (Wajib Login & Role = Admin)
 |--------------------------------------------------------------------------
 */
-// Catatan: Idealnya ini pakai middleware khusus admin, tapi sementara kita grup URL-nya dulu
-// Tambahkan 'admin' di dalam array middleware
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
-    
-    // Dashboard Admin (Bisa diarahkan ke laporan atau pesanan)
-// Dashboard Admin 
     Route::get('/dashboard', function () { return view('admin.dashboard'); });
 
-    // Kelola Pesanan (Kasir)
     Route::get('/pesanan', [AdminPesananController::class, 'index']);
     Route::get('/pesanan/{id}', [AdminPesananController::class, 'detail']);
     Route::post('/pesanan/{id}/status', [AdminPesananController::class, 'updateStatus']);
 
-    // Kelola Produk / Menu
     Route::get('/produk', [AdminProdukController::class, 'index']);
     Route::get('/produk/tambah', [AdminProdukController::class, 'create']);
     Route::post('/produk', [AdminProdukController::class, 'store']);
@@ -69,6 +62,5 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('/produk/{id}', [AdminProdukController::class, 'update']);
     Route::post('/produk/{id}/hapus', [AdminProdukController::class, 'destroy']);
 
-    // Laporan Penjualan
     Route::get('/laporan', [LaporanController::class, 'index']);
 });

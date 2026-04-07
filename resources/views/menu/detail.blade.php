@@ -37,21 +37,33 @@
                 </p>
             </div>
             
-            <form action="/keranjang/tambah" method="POST" style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #eee;">
-                @csrf
-                <input type="hidden" name="menu_id" value="{{ $menu->id }}">
-                
-                <label style="font-weight: bold; display: block; margin-bottom: 10px; color: #333;">Tentukan Jumlah Porsi:</label>
-                
-                <div style="display: flex; gap: 15px;">
-                    <input type="number" name="qty" value="1" min="1" style="width: 80px; padding: 12px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; font-weight: bold; outline: none;">
+            @auth
+                <form action="/keranjang/tambah" method="POST" style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #eee;">
+                    @csrf
+                    <input type="hidden" name="menu_id" value="{{ $menu->id }}">
                     
-                    <button type="submit" style="flex: 1; background: #222; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px;">
-                        + Tambah ke Keranjang
-                    </button>
+                    <label style="font-weight: bold; display: block; margin-bottom: 10px; color: #333;">Tentukan Jumlah Porsi:</label>
+                    
+                    <div style="display: flex; gap: 15px;">
+                        <input type="number" name="qty" value="1" min="1" style="width: 80px; padding: 12px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; font-weight: bold; outline: none;">
+                        
+                        <button type="submit" style="flex: 1; background: #222; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px;">
+                            + Tambah ke Keranjang
+                        </button>
+                    </div>
+                </form>
+            @endauth
+
+            @guest
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #eee; text-align: center;">
+                    <p style="margin-top: 0; margin-bottom: 15px; color: #e74c3c; font-weight: bold;">
+                        Silakan login terlebih dahulu untuk memesan menu ini.
+                    </p>
+                    <a href="/login" style="display: inline-block; padding: 12px 25px; background: #222; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                        Login Sekarang
+                    </a>
                 </div>
-            </form>
-            
+            @endguest
         </div>
     </div>
 </div>

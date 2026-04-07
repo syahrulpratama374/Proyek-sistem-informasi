@@ -25,7 +25,6 @@
             @if(session('keranjang') && count(session('keranjang')) > 0)
                 @foreach(session('keranjang') as $id => $item)
                     @php 
-                        // MENGGUNAKAN 'qty' SESUAI CONTROLLER
                         $subtotal = $item['harga'] * $item['qty'];
                         $total_belanja += $subtotal;
                         $total_item += $item['qty'];
@@ -33,19 +32,40 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #ddd; padding: 20px 0;">
                         
                         <div style="display: flex; gap: 15px; align-items: center; flex: 2;">
-                            <div style="width: 60px; height: 60px; background: #e9ecef; border-radius: 6px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #aaa;">
-                                FOTO
-                            </div>
+                            @if(isset($item['foto']) && $item['foto'])
+                                <img src="{{ asset('storage/' . $item['foto']) }}" alt="{{ $item['nama_menu'] }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">
+                            @else
+                                <div style="width: 60px; height: 60px; background: #e9ecef; border-radius: 6px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #aaa;">
+                                    No Pic
+                                </div>
+                            @endif
+                            
                             <div>
                                 <h4 style="margin: 0 0 5px 0; color: #333;">{{ $item['nama_menu'] }}</h4>
                                 <span style="color: #666; font-size: 13px;">Rp {{ number_format($item['harga'], 0, ',', '.') }} / porsi</span>
                             </div>
                         </div>
 
-                        <div style="display: flex; align-items: center; gap: 10px; flex: 1; justify-content: center;">
-                            <button style="padding: 5px 10px; border: 1px solid #ccc; background: white; cursor: not-allowed; border-radius: 3px;">-</button>
-                            <span style="font-weight: bold; width: 20px; text-align: center;">{{ $item['qty'] }}</span>
-                            <button style="padding: 5px 10px; border: 1px solid #ccc; background: white; cursor: not-allowed; border-radius: 3px;">+</button>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex: 1;">
+                            <form action="/keranjang/{{ $id }}/update" method="POST" style="margin: 0;">
+                                @csrf
+                                <input type="hidden" name="action" value="kurang">
+                                <button type="submit" style="padding: 5px 12px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px;">
+                                    -
+                                </button>
+                            </form>
+
+                            <span style="font-weight: bold; font-size: 16px; min-width: 30px; text-align: center;">
+                                {{ $item['qty'] }}
+                            </span>
+
+                            <form action="/keranjang/{{ $id }}/update" method="POST" style="margin: 0;">
+                                @csrf
+                                <input type="hidden" name="action" value="tambah">
+                                <button type="submit" style="padding: 5px 12px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px;">
+                                    +
+                                </button>
+                            </form>
                         </div>
 
                         <div style="font-weight: bold; font-size: 16px; color: #333; flex: 1; text-align: right;">

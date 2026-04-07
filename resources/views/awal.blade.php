@@ -43,15 +43,15 @@
         </div>
     </section>
 
-    <section id="katalog-menu">
+   <section id="katalog-menu">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h3 style="margin: 0; color: #333;">Menu Tersedia</h3>
             <span style="font-size: 14px; color: #666;">Menampilkan {{ count($menus) }} menu</span>
         </div>
         
-        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div style="display: flex; gap: 20px; overflow-x: auto; padding-bottom: 15px; scroll-snap-type: x mandatory;">
             @forelse($menus as $item)
-                <div style="background: white; border: 1px solid #e0e0e0; padding: 15px; width: calc(25% - 15px); min-width: 200px; border-radius: 8px; box-sizing: border-box; display: flex; flex-direction: column;">
+                <div style="flex: 0 0 auto; width: 250px; scroll-snap-align: start; background: white; border: 1px solid #e0e0e0; padding: 15px; border-radius: 8px; box-sizing: border-box; display: flex; flex-direction: column;">
                     
                     @if($item->foto)
                         <img src="{{ asset('storage/' . $item->foto) }}" alt="{{ $item->nama_menu }}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;">
@@ -62,25 +62,34 @@
                     @endif
                     
                     <div style="flex-grow: 1;">
-                        <h4 style="margin: 0 0 5px 0; color: #333; font-size: 16px;">{{ $item->nama_menu }}</h4>
+                        <h4 style="margin: 0 0 5px 0; color: #333; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $item->nama_menu }}">{{ $item->nama_menu }}</h4>
+                        
                         <div style="margin-bottom: 10px;">
                             <span style="display: inline-block; padding: 3px 6px; border: 1px solid #27ae60; color: #27ae60; font-size: 10px; font-weight: bold; border-radius: 3px; margin-right: 5px;">TERSEDIA</span>
                             <span style="font-size: 12px; color: #888;">{{ $item->kategori }}</span>
                         </div>
-                        <p style="color: #e74c3c; font-weight: bold; font-size: 18px; margin: 0 0 15px 0;">{{ $item->harga_rupiah }}</p>
+                        <p style="color: #e74c3c; font-weight: bold; font-size: 18px; margin: 0 0 15px 0;">{{ $item->harga_rupiah ?? 'Rp ' . number_format($item->harga, 0, ',', '.') }}</p>
                     </div>
 
                     <div style="display: flex; gap: 8px; margin-top: auto;">
                         <a href="/menu/{{ $item->id }}" style="flex: 1; text-align: center; padding: 8px; background: #f1f3f5; color: #333; text-decoration: none; border-radius: 4px; font-size: 13px; font-weight: bold;">Detail</a>
                         
-                        <form action="/keranjang/tambah" method="POST" style="flex: 2; margin: 0;">
-                            @csrf
-                            <input type="hidden" name="menu_id" value="{{ $item->id }}">
-                            <input type="hidden" name="qty" value="1">
-                            <button type="submit" style="width: 100%; padding: 8px; background: #333; color: white; border: none; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer;">
+                        @auth
+                            <form action="/keranjang/tambah" method="POST" style="flex: 2; margin: 0;">
+                                @csrf
+                                <input type="hidden" name="menu_id" value="{{ $item->id }}">
+                                <input type="hidden" name="qty" value="1">
+                                <button type="submit" style="width: 100%; padding: 8px; background: #333; color: white; border: none; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer;">
+                                    + Tambah
+                                </button>
+                            </form>
+                        @endauth
+
+                        @guest
+                            <a href="/login" style="flex: 2; text-align: center; padding: 8px; background: #333; color: white; border: none; border-radius: 4px; font-size: 13px; font-weight: bold; text-decoration: none; display: block;">
                                 + Tambah
-                            </button>
-                        </form>
+                            </a>
+                        @endguest
                     </div>
                 </div>
             @empty
@@ -89,5 +98,5 @@
                 </div>
             @endforelse
         </div>
-    </section> 
+    </section>
 @endsection
