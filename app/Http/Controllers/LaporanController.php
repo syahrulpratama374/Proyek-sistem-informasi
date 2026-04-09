@@ -10,6 +10,11 @@ class LaporanController extends Controller
 {
     public function index(Request $request) {
         
+        // GEMBOK KHUSUS: Jika yang login BUKAN admin, tolak akses!
+        if (\Illuminate\Support\Facades\Auth::user()->role != 'admin') {
+            return abort(403, 'Maaf, halaman Laporan Keuangan ini bersifat RAHASIA dan hanya boleh diakses oleh Pemilik (Admin).');
+        }
+
         $tanggal = $request->input('tanggal', today()->toDateString());
 
         $laporan = Cache::remember(

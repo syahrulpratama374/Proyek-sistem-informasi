@@ -9,21 +9,17 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-
     public function register(Request $request)
     {
-        
         $request->validate([
             'name'       => 'required|string|max:255',
             'no_telepon' => 'required|string|max:20',
             'email'      => 'required|string|email|max:255|unique:users', 
             'password'   => 'required|string|min:8', 
         ], [
-           
             'password.min' => 'Maaf, password wajib terdiri dari minimal 8 karakter!',
             'email.unique' => 'Email ini sudah terdaftar. Silakan gunakan email lain atau coba login.'
         ]);
-
         
         User::create([
             'name' => $request->name,
@@ -32,7 +28,6 @@ class AuthController extends Controller
             'no_telepon' => $request->no_telepon,
             'role' => 'pelanggan' 
         ]);
-
        
         return redirect('/login')->with('success', 'Pendaftaran berhasil! Silakan login.');
     }
@@ -40,26 +35,21 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
-
         
         if (Auth::attempt($credentials)) {
-            
-          
             $request->session()->regenerate(); 
 
-            
-            if (Auth::user()->role == 'admin') {
+            // Izinkan Admin ATAU Kasir masuk ke Dashboard
+            if (Auth::user()->role == 'admin' || Auth::user()->role == 'kasir') {
                 return redirect('/admin/dashboard');
             } else {
                 return redirect('/');
             }
         }
-
         
         return back()->with('error', 'Email atau Password salah!');
     }
 
-  
     public function logout()
     {
         Auth::logout();

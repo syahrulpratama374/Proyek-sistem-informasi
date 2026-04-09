@@ -11,9 +11,16 @@
         <h2 style="text-align: center; color: orange; border-bottom: 1px solid #4f5962; padding-bottom: 15px;">Admin Panel</h2>
         <ul style="list-style: none; padding: 0; margin-top: 20px;">
             <li style="margin-bottom: 15px;"><a href="/admin/dashboard" style="color: #c2c7d0; text-decoration: none; display: block;">📊 Dashboard</a></li>
+            
+            <li style="margin-bottom: 15px;"><a href="/admin/pos" style="color: #c2c7d0; text-decoration: none; display: block; font-weight: bold;">💻 POS Kasir</a></li>
+            
             <li style="margin-bottom: 15px;"><a href="/admin/pesanan" style="color: #c2c7d0; text-decoration: none; display: block;">🛒 Kelola Pesanan</a></li>
-            <li style="margin-bottom: 15px;"><a href="/admin/produk" style="color: #c2c7d0; text-decoration: none; display: block;">🍱 Manajemen Produk</a></li>
-            <li style="margin-bottom: 15px;"><a href="/admin/laporan" style="color: #c2c7d0; text-decoration: none; display: block;">📈 Laporan</a></li>
+            
+            @if(auth()->user()->role == 'admin')
+                <li style="margin-bottom: 15px;"><a href="/admin/produk" style="color: #c2c7d0; text-decoration: none; display: block;">🍱 Manajemen Produk</a></li>
+                <li style="margin-bottom: 15px;"><a href="/admin/laporan" style="color: #c2c7d0; text-decoration: none; display: block;">📄 Laporan</a></li>
+            @endif
+            
             <li style="margin-top: 40px;"><a href="/" style="color: #ff6b6b; text-decoration: none; display: block;">&larr; Kembali ke Web</a></li>
         </ul>
     </aside>

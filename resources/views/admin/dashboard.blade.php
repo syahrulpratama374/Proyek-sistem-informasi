@@ -42,10 +42,15 @@
             <strong>📌 Tips Hari Ini:</strong> Pastikan Anda selalu mengecek menu "Kelola Pesanan" dan memperhatikan angka "Perlu Diproses" di atas agar pelanggan tidak menunggu lama.
         </p>
         
-        <div style="margin-top: 25px;">
-            <a href="/admin/pesanan" style="display: inline-block; padding: 12px 20px; background: #343a40; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; margin-right: 10px;">
+        <div style="margin-top: 25px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="/admin/pos" style="display: inline-block; padding: 12px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                💻 Buka POS Kasir
+            </a>
+
+            <a href="/admin/pesanan" style="display: inline-block; padding: 12px 20px; background: #343a40; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
                 🛒 Lihat Pesanan Masuk
             </a>
+            
             <a href="/admin/produk" style="display: inline-block; padding: 12px 20px; background: #f39c12; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
                 🍱 Kelola Menu
             </a>

@@ -51,6 +51,10 @@ Route::middleware('auth')->group(function () {
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', function () { return view('admin.dashboard'); });
 
+    // --- FITUR BARU: POS KASIR (OFFLINE) ---
+    Route::get('/pos', [AdminPesananController::class, 'pos']);
+    Route::post('/pos/simpan', [AdminPesananController::class, 'simpanPos']);
+
     Route::get('/pesanan', [AdminPesananController::class, 'index']);
     Route::get('/pesanan/{id}', [AdminPesananController::class, 'detail']);
     Route::post('/pesanan/{id}/status', [AdminPesananController::class, 'updateStatus']);

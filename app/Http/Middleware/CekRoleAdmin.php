@@ -9,13 +9,13 @@ use Illuminate\Support\Facades\Auth;
 class CekRoleAdmin {
     public function handle(Request $request, Closure $next): Response {
         
-      
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
-        if (Auth::user()->role !== 'admin') {
-            return abort(403, 'Akses ditolak. Anda bukan admin.');
+        // PERBAIKAN: Tolak jika BUKAN admin dan BUKAN kasir
+        if (Auth::user()->role !== 'admin' && Auth::user()->role !== 'kasir') {
+            return abort(403, 'Akses ditolak. Anda tidak memiliki izin.');
         }
 
         return $next($request);
