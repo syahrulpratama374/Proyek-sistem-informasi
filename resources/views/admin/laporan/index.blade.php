@@ -1,99 +1,62 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Laporan Penjualan')
-@section('header_title', 'Laporan Pendapatan Salero Bundo')
+@section('title', 'Laporan Penjualan - Salero Bundo')
+@section('header_title', 'Laporan Pendapatan')
 
 @section('content')
-<div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-    
-    <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
-        
-        <form action="/admin/laporan" method="GET" style="display: flex; gap: 10px; align-items: center; margin: 0;">
-            <label style="font-weight: bold; color: #333;">Pilih Tanggal:</label>
-            <input type="date" name="tanggal" value="{{ $tanggal }}" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; outline: none;">
-            <button type="submit" style="padding: 10px 15px; background: #343a40; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
-                🔍 Tampilkan
-            </button>
-        </form>
 
-        <button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 15px;">
-            🖨️ Cetak Laporan (PDF)
-        </button>
-    </div>
-
-    <div style="text-align: center; margin-bottom: 30px;">
-        <h2 style="margin: 0; color: #333;">Laporan Penjualan Harian</h2>
-        <p style="color: #666; margin-top: 5px; font-size: 16px;">Rumah Makan Padang Salero Bundo</p>
-        <p style="color: #333; font-weight: bold; margin-top: 5px;">Tanggal: {{ \Carbon\Carbon::parse($tanggal)->format('d F Y') }}</p>
-        <hr style="border: 1px solid #eee; margin-top: 20px;">
-    </div>
-
-    <div style="display: flex; gap: 20px; margin-bottom: 25px;">
-        <div style="flex: 1; background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 5px solid #007bff;">
-            <p style="margin: 0; color: #666; font-size: 14px; font-weight: bold;">TOTAL PESANAN SELESAI</p>
-            <h2 style="margin: 5px 0 0 0; color: #333;">{{ $totalPesanan }} Transaksi</h2>
-        </div>
-        <div style="flex: 1; background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 5px solid #28a745;">
-            <p style="margin: 0; color: #666; font-size: 14px; font-weight: bold;">TOTAL PENDAPATAN HARI INI</p>
-            <h2 style="margin: 5px 0 0 0; color: #28a745;">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</h2>
-        </div>
-    </div>
-
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-        <tr style="background: #343a40; color: white;">
-            <th style="padding: 12px; border: 1px solid #454d55; text-align: left;">Waktu</th>
-            <th style="padding: 12px; border: 1px solid #454d55; text-align: left;">Kode Pesanan</th>
-            <th style="padding: 12px; border: 1px solid #454d55; text-align: left;">Pelanggan & Meja</th>
-            <th style="padding: 12px; border: 1px solid #454d55; text-align: left;">Metode</th>
-            <th style="padding: 12px; border: 1px solid #454d55; text-align: right;">Pendapatan</th>
-        </tr>
-
-        @forelse($laporan as $item)
-        <tr style="border-bottom: 1px solid #ddd;">
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ $item->created_at->format('H:i') }} WIB</td>
-            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; color: #333;">{{ $item->kode_pesanan }}</td>
-            <td style="padding: 10px; border: 1px solid #ddd;">
-                {{ $item->user->name ?? 'Pelanggan' }} <br>
-                <small style="color: #888;">Meja {{ strtoupper($item->nomor_meja) }}</small>
-            </td>
-            <td style="padding: 10px; border: 1px solid #ddd; text-transform: uppercase; font-size: 13px;">{{ $item->metode_pembayaran }}</td>
-            <td style="padding: 10px; border: 1px solid #ddd; text-align: right; color: #28a745; font-weight: bold;">Rp {{ number_format($item->total_harga, 0, ',', '.') }}</td>
-        </tr>
-        @empty
-        <tr>
-            <td colspan="5" style="padding: 30px; text-align: center; color: #888; background: #f8f9fa;">
-                Tidak ada pesanan yang selesai pada tanggal ini.
-            </td>
-        </tr>
-        @endforelse
-    </table>
-
+<div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; text-align: center; border-bottom: 4px solid #28a745;">
+    <h3 style="margin: 0; color: #666; font-size: 16px;">Total Pendapatan Bersih</h3>
+    <h1 style="margin: 10px 0 0 0; color: #28a745; font-size: 36px;">
+        Rp {{ number_format($totalPendapatan, 0, ',', '.') }}
+    </h1>
+    <p style="margin: 5px 0 0 0; color: #888; font-size: 13px;">(Hanya menghitung pesanan dengan status "Selesai")</p>
 </div>
 
-<style>
-    @media print {
-        body * {
-            visibility: hidden; 
-        }
-        main, main * {
-            visibility: visible; 
-        }
-        main {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-        aside, header, .no-print {
-            display: none !important; 
-        }
-        /* Penyesuaian agar tampilan tabel saat dicetak lebih rapi */
-        table th {
-            background-color: #f8f9fa !important;
-            color: #333 !important;
-        }
-    }
-</style>
+<div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+        <h4 style="margin: 0; color: #333;">Rincian Transaksi</h4>
+        
+        <div style="display: flex; gap: 5px;">
+            <a href="?filter=hari" style="padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: bold; {{ $filter == 'hari' ? 'background: #007bff; color: white;' : 'background: #f8f9fa; color: #555; border: 1px solid #ddd;' }}">Hari Ini</a>
+            
+            <a href="?filter=minggu" style="padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: bold; {{ $filter == 'minggu' ? 'background: #007bff; color: white;' : 'background: #f8f9fa; color: #555; border: 1px solid #ddd;' }}">Minggu Ini</a>
+            
+            <a href="?filter=bulan" style="padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: bold; {{ $filter == 'bulan' ? 'background: #007bff; color: white;' : 'background: #f8f9fa; color: #555; border: 1px solid #ddd;' }}">Bulan Ini</a>
+            
+            <a href="?filter=tahun" style="padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: bold; {{ $filter == 'tahun' ? 'background: #007bff; color: white;' : 'background: #f8f9fa; color: #555; border: 1px solid #ddd;' }}">Tahun Ini</a>
+            
+            <a href="?filter=semua" style="padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: bold; {{ $filter == 'semua' ? 'background: #007bff; color: white;' : 'background: #f8f9fa; color: #555; border: 1px solid #ddd;' }}">Semua Waktu</a>
+        </div>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; min-width: 700px;">
+            <tr style="background: #343a40; color: white; font-size: 14px;">
+                <th style="padding: 12px; border: 1px solid #454d55; text-align: left;">Tanggal</th>
+                <th style="padding: 12px; border: 1px solid #454d55; text-align: left;">Kode Pesanan</th>
+                <th style="padding: 12px; border: 1px solid #454d55; text-align: left;">Nama Pelanggan</th>
+                <th style="padding: 12px; border: 1px solid #454d55; text-align: right;">Nominal</th>
+            </tr>
+
+            @forelse($laporans as $item)
+            <tr>
+                <td style="padding: 12px; border: 1px solid #ddd;">{{ $item->created_at->format('d M Y, H:i') }}</td>
+                <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">{{ $item->kode_pesanan }}</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">{{ $item->user->name ?? 'Kasir / Guest' }}</td>
+                <td style="padding: 12px; border: 1px solid #ddd; text-align: right; color: #28a745; font-weight: bold;">Rp {{ number_format($item->total_harga, 0, ',', '.') }}</td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="4" style="padding: 40px; text-align: center; color: #888; background: #f8f9fa;">
+                    <div style="font-size: 30px; margin-bottom: 10px;">📉</div>
+                    Belum ada data penjualan "Selesai" untuk periode ini.
+                </td>
+            </tr>
+            @endforelse
+        </table>
+    </div>
+
+</div>
 @endsection
