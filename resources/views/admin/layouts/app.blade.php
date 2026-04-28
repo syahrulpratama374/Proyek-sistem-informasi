@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Panel Salero Bundo')</title>
+    <title>@yield('title', 'Panel Ratu Minang')</title>
     
     <style>
         @media print {
@@ -16,7 +16,7 @@
 <body style="display: flex; margin: 0; font-family: sans-serif; background: #f4f6f9; min-height: 100vh;">
 
     <aside class="no-print" style="width: 250px; background: #343a40; color: white; padding: 20px; box-sizing: border-box; height: 100vh; position: sticky; top: 0;">
-        <h2 style="text-align: center; color: orange; border-bottom: 1px solid #4f5962; padding-bottom: 15px;">Salero Bundo</h2>
+        <h2 style="text-align: center; color: orange; border-bottom: 1px solid #4f5962; padding-bottom: 15px;">Ratu Minang</h2>
         
         <ul style="list-style: none; padding: 0; margin-top: 20px;">
             
@@ -73,7 +73,7 @@
                         </div>
                     </div>
                     
-                    <form action="{{ route('logout') }}" method="POST" style="margin: 0; border-left: 2px solid #eee; padding-left: 15px; height: 100%; display: flex; align-items: center;">
+                    <form action="/logout" method="POST" style="margin: 0; border-left: 2px solid #eee; padding-left: 15px; height: 100%; display: flex; align-items: center;">
                         @csrf
                         <button type="submit" style="background: #ffeeba; border: 1px solid #ffdf7e; color: #856404; font-size: 13px; cursor: pointer; padding: 5px 12px; font-weight: bold; border-radius: 4px; transition: 0.2s;">
                             Logout

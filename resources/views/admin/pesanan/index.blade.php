@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Kelola Pesanan - Admin Salero Bundo')
+@section('title', 'Kelola Pesanan - Admin Ratu Minang')
 @section('header_title', 'Daftar Pesanan Masuk')
 
 @section('content')

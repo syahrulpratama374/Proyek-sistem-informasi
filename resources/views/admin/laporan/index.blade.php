@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Laporan Penjualan - Salero Bundo')
+@section('title', 'Laporan Penjualan - Ratu Minang')
 @section('header_title', 'Laporan Pendapatan')
 
 @section('content')

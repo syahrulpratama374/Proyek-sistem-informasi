@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Dashboard Admin - Salero Bundo')
+@section('title', 'Dashboard Admin - Ratu Minang')
 @section('header_title', 'Dashboard Ringkasan')
 
 @section('content')
@@ -35,7 +35,7 @@
     </div>
 
     <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <h3 style="margin-top: 0; color: #333; margin-bottom: 15px;">Selamat Datang di Panel Admin Salero Bundo!</h3>
+        <h3 style="margin-top: 0; color: #333; margin-bottom: 15px;">Selamat Datang di Panel Admin Ratu Minang</h3>
         <p style="color: #555; line-height: 1.6;">
             Gunakan menu di sebelah kiri untuk mengelola pesanan masuk, mengatur katalog menu, dan melihat laporan pendapatan harian restoran Anda.
             <br><br>

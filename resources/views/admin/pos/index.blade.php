@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'POS Kasir - Salero Bundo')
+@section('title', 'POS Kasir - Ratu Minang')
 @section('header_title', 'Point of Sale (Kasir)')
 
 @section('content')
