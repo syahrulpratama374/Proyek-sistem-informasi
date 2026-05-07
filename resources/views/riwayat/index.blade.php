@@ -153,6 +153,7 @@
     }
     .status-pending { background: rgba(201,168,76,0.05); color: #C9A84C; border-color: rgba(201,168,76,0.3); }
     .status-diproses { background: rgba(85,152,212,0.05); color: #7DB2E8; border-color: rgba(85,152,212,0.3); }
+    .status-diantar { background: rgba(155,89,182,0.05); color: #B370CF; border-color: rgba(155,89,182,0.3); }
     .status-selesai { background: rgba(76,175,80,0.05); color: #66BB6A; border-color: rgba(76,175,80,0.3); }
     .status-batal { background: rgba(211,47,47,0.05); color: #EF5350; border-color: rgba(211,47,47,0.3); }
 
@@ -336,6 +337,8 @@
                             <span class="rm-status-badge status-pending">Menunggu Proses</span>
                         @elseif($pesanan->status == 'diproses')
                             <span class="rm-status-badge status-diproses">Sedang Dimasak</span>
+                        @elseif($pesanan->status == 'diantar')
+                            <span class="rm-status-badge status-diantar">Sedang Diantar</span>
                         @elseif($pesanan->status == 'selesai')
                             <span class="rm-status-badge status-selesai">Selesai</span>
                         @else

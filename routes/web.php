@@ -53,9 +53,24 @@ Route::middleware('auth')->group(function () {
 */
 Route::prefix('admin')->middleware('auth')->group(function () {
 
+    // 🌟 DASHBOARD SEKARANG BISA DIAKSES ADMIN & KASIR 🌟
+    Route::get('/dashboard', function () { 
+        $hari_ini = \Carbon\Carbon::today();
+        
+        // Menghitung data asli dari Database
+        $pesanan_hari_ini = \App\Models\Pesanan::whereDate('created_at', $hari_ini)->count();
+        $perlu_diproses = \App\Models\Pesanan::whereIn('status', ['pending', 'diproses'])->count();
+        // Menghitung semua orang yang bukan admin dan bukan kasir
+        $total_pelanggan = \App\Models\User::whereNotIn('role', ['admin', 'kasir'])
+                                     ->orWhereNull('role')
+                                     ->count(); 
+        $menu_aktif = \App\Models\Menu::where('tersedia', true)->count();
+
+        return view('admin.dashboard', compact('pesanan_hari_ini', 'perlu_diproses', 'total_pelanggan', 'menu_aktif')); 
+    });
+
     // --- ZONA KHUSUS ADMIN (Pemilik Restoran) ---
     Route::middleware(CekRoleAdmin::class)->group(function () {
-        Route::get('/dashboard', function () { return view('admin.dashboard'); });
         Route::get('/laporan', [LaporanController::class, 'index']);
     });
 
@@ -74,6 +89,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         Route::get('/produk/{id}/edit', [AdminProdukController::class, 'edit']);
         Route::post('/produk/{id}', [AdminProdukController::class, 'update']);
         Route::post('/produk/{id}/hapus', [AdminProdukController::class, 'destroy']);
+
+        Route::get('/pesanan/{id}/struk', [AdminPesananController::class, 'cetakStruk']);
     });
 
 });

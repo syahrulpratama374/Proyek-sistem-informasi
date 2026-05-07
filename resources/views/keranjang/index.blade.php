@@ -412,7 +412,7 @@
     <div class="rm-cart-header">
         <h2>Keranjang Pesanan</h2>
         @if(session('keranjang'))
-            <span class="rm-cart-badge">🛒 {{ count(session('keranjang')) }} Item</span>
+            <span class="rm-cart-badge" id="cart-badge">🛒 {{ count(session('keranjang')) }} Item</span>
         @endif
     </div>
 
@@ -433,7 +433,8 @@
                         $total_item += $item['qty'];
                     @endphp
 
-                    <div class="rm-cart-row">
+                    <!-- Tambahan ID pada Baris Item -->
+                    <div class="rm-cart-row" id="row-{{ $id }}">
 
                         {{-- Info produk --}}
                         <div class="rm-cart-info">
@@ -449,25 +450,23 @@
                             </div>
                         </div>
 
-                        {{-- Qty control --}}
+                        {{-- Qty control (Menjalankan AJAX via JS) --}}
                         <div class="rm-cart-qty">
-                            <form action="/keranjang/{{ $id }}/update" method="POST" class="rm-qty-form">
+                            <form onsubmit="updateCartAjax(event, '{{ $id }}', 'kurang')" class="rm-qty-form">
                                 @csrf
-                                <input type="hidden" name="action" value="kurang">
                                 <button type="submit" class="rm-qty-btn minus">-</button>
                             </form>
 
-                            <span class="rm-qty-num">{{ $item['qty'] }}</span>
+                            <span class="rm-qty-num" id="qty-num-{{ $id }}">{{ $item['qty'] }}</span>
 
-                            <form action="/keranjang/{{ $id }}/update" method="POST" class="rm-qty-form">
+                            <form onsubmit="updateCartAjax(event, '{{ $id }}', 'tambah')" class="rm-qty-form">
                                 @csrf
-                                <input type="hidden" name="action" value="tambah">
                                 <button type="submit" class="rm-qty-btn">+</button>
                             </form>
                         </div>
 
                         {{-- Subtotal --}}
-                        <div class="rm-cart-subtotal">
+                        <div class="rm-cart-subtotal" id="subtotal-{{ $id }}">
                             Rp {{ number_format($subtotal, 0, ',', '.') }}
                         </div>
 
@@ -489,8 +488,8 @@
             <h3>Ringkasan</h3>
 
             <div class="rm-summary-row">
-                <span>Subtotal ({{ $total_item }} menu)</span>
-                <span>Rp {{ number_format($total_belanja, 0, ',', '.') }}</span>
+                <span id="total-item-summary">Subtotal ({{ $total_item }} menu)</span>
+                <span id="total-belanja-summary">Rp {{ number_format($total_belanja, 0, ',', '.') }}</span>
             </div>
 
             <div class="rm-summary-row">
@@ -500,7 +499,7 @@
 
             <div class="rm-summary-total">
                 <span class="rm-summary-total-label">Total</span>
-                <span class="rm-summary-total-val">Rp {{ number_format($total_belanja, 0, ',', '.') }}</span>
+                <span class="rm-summary-total-val" id="total-belanja-final">Rp {{ number_format($total_belanja, 0, ',', '.') }}</span>
             </div>
 
             <a href="/checkout" class="rm-summary-checkout">Lanjut ke Pembayaran &rarr;</a>
@@ -510,5 +509,54 @@
 
     </div>
 </div>
+
+<!-- 🌟 SIHIR JAVASCRIPT AJAX 🌟 -->
+<script>
+    function updateCartAjax(event, id, action) {
+        // Mencegah browser me-reload halaman
+        event.preventDefault(); 
+        
+        let form = event.target;
+        let token = form.querySelector('input[name="_token"]').value;
+
+        // Mengirim data secara diam-diam ke Controller
+        fetch(`/keranjang/${id}/update`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': token,
+                'X-Requested-With': 'XMLHttpRequest' // Tanda bahwa ini adalah AJAX
+            },
+            body: JSON.stringify({ action: action })
+        })
+        .then(res => res.json())
+        .then(data => {
+            // Jika keranjang tiba-tiba kosong, reload halaman agar muncul pesan "Keranjang Kosong"
+            if (data.is_empty) {
+                window.location.reload();
+                return;
+            }
+            
+            // Jika porsi tersisa 0, hilangkan baris makanannya
+            if (data.item_qty === 0) {
+                document.getElementById('row-' + id).remove();
+            } else {
+                // Update angka porsi dan subtotal menu
+                document.getElementById('qty-num-' + id).innerText = data.item_qty;
+                document.getElementById('subtotal-' + id).innerText = 'Rp ' + data.item_subtotal;
+            }
+
+            // Update Panel Ringkasan di sebelah kanan
+            document.getElementById('total-item-summary').innerText = 'Subtotal (' + data.total_item + ' menu)';
+            document.getElementById('total-belanja-summary').innerText = 'Rp ' + data.total_belanja;
+            document.getElementById('total-belanja-final').innerText = 'Rp ' + data.total_belanja;
+            
+            // Update lencana keranjang di pojok atas
+            let badge = document.getElementById('cart-badge');
+            if(badge) badge.innerText = '🛒 ' + data.unique_items + ' Item';
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
 
 @endsection

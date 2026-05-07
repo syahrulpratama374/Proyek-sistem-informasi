@@ -22,6 +22,10 @@ class AdminProdukController extends Controller
     // Fungsi untuk menangkap data dari form TAMBAH MENU dan menyimpannya ke database
     public function store(Request $request)
     {
+        $request->validate([
+            'foto' => 'image|mimes:jpeg,png,jpg|max:2048', // Maksimal 2MB
+        ]);
+
         $dataSimpan = [
             'nama_menu' => $request->nama_menu,
             'kategori'  => $request->kategori,
@@ -43,6 +47,11 @@ class AdminProdukController extends Controller
     // Fungsi untuk menangkap data dari form dan menyimpannya ke database
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', 
+            // Tambahan kata 'nullable' agar saat edit menu, admin tidak wajib upload foto baru jika tidak mau ganti foto.
+        ]);
+        
         $menu = Menu::find($id);
         
         // Data default yang diupdate

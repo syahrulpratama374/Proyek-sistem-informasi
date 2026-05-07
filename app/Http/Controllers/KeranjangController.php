@@ -27,7 +27,7 @@ class KeranjangController extends Controller
                 "nama_menu" => $menu->nama_menu,
                 "qty" => $request->qty,
                 "harga" => $menu->harga,
-                "foto" => $menu->foto // Menyimpan foto agar bisa ditampilkan di keranjang
+                "foto" => $menu->foto 
             ];
         }
 
@@ -35,12 +35,11 @@ class KeranjangController extends Controller
         return redirect('/keranjang');
     }
 
-    // FUNGSI BARU: Mengatur tombol Plus (+) dan Minus (-)
+    // FUNGSI AJAX: Mengatur tombol Plus (+) dan Minus (-) tanpa Reload
     public function update(Request $request, $id)
     {
         $keranjang = session()->get('keranjang', []);
 
-        // Pastikan menu ada di dalam keranjang
         if (isset($keranjang[$id])) {
             if ($request->action == 'tambah') {
                 $keranjang[$id]['qty']++;
@@ -48,18 +47,37 @@ class KeranjangController extends Controller
                 if ($keranjang[$id]['qty'] > 1) {
                     $keranjang[$id]['qty']--;
                 } else {
-                    // Jika porsi tersisa 1 lalu dikurangi, menu otomatis dihapus
                     unset($keranjang[$id]);
                 }
             }
-            // Simpan kembali ke memori
             session()->put('keranjang', $keranjang);
+        }
+
+        // 🌟 JIKA REQUEST DATANG DARI AJAX, BALAS DENGAN DATA JSON 🌟
+        if ($request->ajax()) {
+            $total_belanja = 0;
+            $total_item = 0;
+            
+            foreach ($keranjang as $item) {
+                $total_belanja += $item['harga'] * $item['qty'];
+                $total_item += $item['qty'];
+            }
+
+            return response()->json([
+                'success' => true,
+                'is_empty' => count($keranjang) === 0,
+                'unique_items' => count($keranjang),
+                'total_item' => $total_item,
+                'total_belanja' => number_format($total_belanja, 0, ',', '.'),
+                'item_qty' => isset($keranjang[$id]) ? $keranjang[$id]['qty'] : 0,
+                'item_subtotal' => isset($keranjang[$id]) ? number_format($keranjang[$id]['harga'] * $keranjang[$id]['qty'], 0, ',', '.') : 0,
+            ]);
         }
 
         return back();
     }
 
-    // FUNGSI BARU: Menghapus menu dari keranjang secara langsung
+    // Menghapus menu dari keranjang secara langsung
     public function hapus($id)
     {
         $keranjang = session()->get('keranjang', []);

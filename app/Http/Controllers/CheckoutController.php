@@ -6,13 +6,14 @@ use App\Models\Pesanan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB; 
 use Illuminate\Support\Str; 
-use Illuminate\Support\Facades\Auth; // Pastikan ini ada
+use Illuminate\Support\Facades\Auth;
+use Midtrans\Config; 
+use Midtrans\Snap;   
 
 class CheckoutController extends Controller
 {
     public function index()
     {
-        // CEGAT JIKA BELUM LOGIN (Menggunakan Auth::check())
         if (!Auth::check()) {
             return redirect('/login')->with('error', 'Silakan login terlebih dahulu untuk checkout.');
         }
@@ -23,15 +24,13 @@ class CheckoutController extends Controller
 
     public function proses(Request $request) 
     {
-        // CEGAT JIKA BELUM LOGIN (Menggunakan Auth::check())
         if (!Auth::check()) {
             return redirect('/login')->with('error', 'Silakan login terlebih dahulu untuk checkout.');
         }
 
-        // 1. Validasi input dari form checkout
         $request->validate([
             'nomor_meja' => ['required', 'string'],
-            'metode_pembayaran' => ['required', 'in:tunai,transfer,qris'],
+            'metode_pembayaran' => ['required', 'in:tunai,transfer,transfer_bank,qris'],
             'catatan' => ['nullable', 'string', 'max:500'],
         ]);
 
@@ -41,43 +40,79 @@ class CheckoutController extends Controller
             return back()->with('error', 'Keranjang masih kosong!');
         }
 
-        // Gunakan DB Transaction agar jika ada yang gagal, semuanya dibatalkan
-        return DB::transaction(function () use ($request, $keranjang) {
-            
-            // Hitung total harga keranjang
-            $total = collect($keranjang)->sum(fn($item) => $item['harga'] * $item['qty']);
+        try {
+            $pesananBaru = DB::transaction(function () use ($request, $keranjang) {
+                
+                $total = collect($keranjang)->sum(fn($item) => $item['harga'] * $item['qty']);
 
-            // 2. Buat data Pesanan Induk
-            $pesanan = Pesanan::create([
-                'user_id'           => Auth::id(), // Menggunakan Auth::id()
-                'kode_pesanan'      => 'PSN-' . strtoupper(Str::random(8)),
-                'nomor_meja'        => $request->nomor_meja,
-                'metode_pembayaran' => $request->metode_pembayaran,
-                'total_harga'       => $total,
-                'catatan'           => $request->catatan,
-                'status'            => 'pending',
-            ]);
-
-            // 3. Masukkan setiap item di keranjang ke Detail Pesanan
-            foreach ($keranjang as $menuId => $item) {
-                $pesanan->detailPesanans()->create([
-                    'menu_id'      => $menuId,
-                    'qty'          => $item['qty'],
-                    'harga_satuan' => $item['harga'],
+                $pesanan = Pesanan::create([
+                    'user_id'           => Auth::id(),
+                    'kode_pesanan'      => 'PSN-' . strtoupper(Str::random(8)),
+                    'nomor_meja'        => $request->nomor_meja,
+                    'metode_pembayaran' => $request->metode_pembayaran,
+                    'total_harga'       => $total,
+                    'catatan'           => $request->catatan,
+                    'status'            => 'pending',
                 ]);
+
+                foreach ($keranjang as $menuId => $item) {
+                    $pesanan->detailPesanans()->create([
+                        'menu_id'      => $menuId,
+                        'qty'          => $item['qty'],
+                        'harga_satuan' => $item['harga'],
+                    ]);
+                }
+                
+                return $pesanan;
+            });
+
+            // 🌟 LOGIKA MIDTRANS 🌟
+            if (in_array($request->metode_pembayaran, ['qris', 'transfer', 'transfer_bank'])) {
+                
+                // MENGAMBIL KUNCI RAHASIA DARI FILE .ENV (SANGAT AMAN)
+                Config::$serverKey = env('MIDTRANS_SERVER_KEY'); 
+                Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false); 
+                Config::$isSanitized = true;
+                Config::$is3ds = true;
+
+                $params = array(
+                    'transaction_details' => array(
+                        'order_id' => $pesananBaru->kode_pesanan,
+                        'gross_amount' => $pesananBaru->total_harga,
+                    ),
+                    'customer_details' => array(
+                        'first_name' => Auth::user()->name,
+                        'email' => Auth::user()->email ?? 'pelanggan@example.com',
+                    ),
+                );
+
+                $snapToken = Snap::getSnapToken($params);
+
+                session()->forget('keranjang');
+                
+                return view('checkout.bayar', compact('snapToken', 'pesananBaru'));
             }
 
-            // 4. Kosongkan keranjang setelah berhasil masuk database
+            // JIKA TUNAI
             session()->forget('keranjang');
-            
-            // Arahkan ke halaman sukses
             return redirect('/checkout/sukses')->with('success', 'Pesanan berhasil dibuat!');
-        });
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Sistem Pembayaran Gagal: ' . $e->getMessage());
+        }
     }
 
-    // Menampilkan halaman sukses setelah checkout
-    public function sukses()
+    // 🌟 FUNGSI SUKSES YANG SUDAH DITINGKATKAN 🌟
+    public function sukses(Request $request)
     {
+        // Mengecek apakah pembayaran online sukses dan mengirimkan order_id
+        if ($request->has('order_id')) {
+            // Ubah otomatis statusnya jadi 'diproses'
+            Pesanan::where('kode_pesanan', $request->order_id)
+                   ->where('status', 'pending')
+                   ->update(['status' => 'diproses']);
+        }
+
         return view('checkout.sukses');
     }
 }

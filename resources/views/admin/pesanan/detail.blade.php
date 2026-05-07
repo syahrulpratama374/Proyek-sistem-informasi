@@ -82,9 +82,9 @@
             &larr; Kembali ke Daftar
         </a>
         
-        <button onclick="window.print()" style="padding: 12px 20px; background: #17a2b8; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
-            🖨️ Cetak Struk
-        </button>
+        <a href="/admin/pesanan/{{ $pesanan->id }}/struk" target="_blank" style="padding: 12px 20px; background: #17a2b8; color: white; text-decoration: none; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; display: inline-block;">
+        🖨️ Cetak Struk
+        </a>
     </div>
 
 </div>

@@ -167,7 +167,7 @@
 
     .rm-co-textarea { resize: vertical; font-family: 'Nunito Sans', sans-serif; }
 
-    /* ── RADIO PAYMENT ── */
+    /* ── RADIO OPTIONS (TIPE & PAYMENT) ── */
     .rm-pay-option {
         display: flex;
         align-items: center;
@@ -345,6 +345,7 @@
     @media (max-width: 768px) {
         .rm-co-page { padding: 28px 18px 60px; }
         .rm-co-left, .rm-co-summary { min-width: 100%; }
+        .tipe-pesanan-wrapper { flex-direction: column; }
     }
 </style>
 
@@ -376,26 +377,40 @@
 
         <div class="rm-co-left">
 
-            {{-- Detail Meja --}}
+            {{-- TIPE PESANAN & TUJUAN (DINE-IN VS DELIVERY) --}}
             <div class="rm-co-card">
-                <h4>Detail Meja</h4>
-                <label class="rm-co-label">Nomor Meja <span>*</span></label>
-                <input type="text" name="nomor_meja" value="{{ old('nomor_meja') }}" required placeholder="Contoh: Meja 05" class="rm-co-input">
+                <h4>Tipe Pesanan & Tujuan</h4>
+                
+                <div class="tipe-pesanan-wrapper" style="display: flex; gap: 15px; margin-bottom: 20px;">
+                    <label class="rm-pay-option order-type-label active-pay" style="flex: 1; margin: 0; justify-content: center;">
+                        <input type="radio" name="tipe_pesanan" value="dine_in" checked onchange="toggleOrderType()">
+                        <span class="rm-pay-option-name">Makan di Tempat</span>
+                    </label>
+
+                    <label class="rm-pay-option order-type-label" style="flex: 1; margin: 0; justify-content: center;">
+                        <input type="radio" name="tipe_pesanan" value="delivery" onchange="toggleOrderType()">
+                        <span class="rm-pay-option-name">Pesan Antar</span>
+                    </label>
+                </div>
+
+                <label class="rm-co-label" id="label-tujuan">Nomor Meja <span>*</span></label>
+                <textarea name="nomor_meja" id="input-tujuan" rows="2" required placeholder="Contoh: Meja 05" class="rm-co-textarea" style="resize: none;">{{ old('nomor_meja') }}</textarea>
+                <small id="hint-tujuan" style="color: rgba(250,243,224,0.3); font-size: 11px; font-style: italic; display: block; margin-top: 6px;">Silakan masukkan nomor meja Anda.</small>
             </div>
 
             {{-- Metode Pembayaran --}}
             <div class="rm-co-card">
                 <h4>Metode Pembayaran</h4>
 
-                <label class="rm-pay-option active-pay">
+                <label class="rm-pay-option payment-option-label active-pay">
                     <input type="radio" name="metode_pembayaran" value="tunai" checked>
                     <span class="rm-pay-option-name">Bayar di Kasir (Tunai / Cash)</span>
                 </label>
 
-                <label class="rm-pay-option">
+                <label class="rm-pay-option payment-option-label">
                     <input type="radio" name="metode_pembayaran" value="transfer">
-                    <span class="rm-pay-option-name">Transfer Bank</span>
-                    <span class="rm-pay-badge">Tersedia</span>
+                    <span class="rm-pay-option-name">Transfer Bank / QRIS</span>
+                    <span class="rm-pay-badge">Otomatis</span>
                 </label>
             </div>
 
@@ -437,5 +452,43 @@
 
     </form>
 </div>
+
+<script>
+    // 1. Logika Toggle Tipe Pesanan (Dine-in vs Delivery)
+    function toggleOrderType() {
+        const isDelivery = document.querySelector('input[name="tipe_pesanan"]:checked').value === 'delivery';
+        
+        const label = document.getElementById('label-tujuan');
+        const input = document.getElementById('input-tujuan');
+        const hint = document.getElementById('hint-tujuan');
+        
+        // Update Efek Nyala pada Tombol Pilihan
+        document.querySelectorAll('.order-type-label').forEach(el => el.classList.remove('active-pay'));
+        document.querySelector('input[name="tipe_pesanan"]:checked').closest('.order-type-label').classList.add('active-pay');
+
+        // Ganti Teks dan Placeholder Sesuai Pilihan
+        if (isDelivery) {
+            label.innerHTML = 'Alamat Lengkap Pengiriman <span>*</span>';
+            input.placeholder = 'Contoh: Jl. Sudirman No. 12, Pagar Hitam (Samping Toko Buku)';
+            hint.innerText = 'Pastikan mengisi alamat selengkap mungkin agar kurir restoran tidak tersesat.';
+            input.rows = 3;
+            // Jika pesanan diantar, otomatis pindah pembayaran ke Transfer/QRIS (Opsional)
+            document.querySelector('input[name="metode_pembayaran"][value="transfer"]').click();
+        } else {
+            label.innerHTML = 'Nomor Meja <span>*</span>';
+            input.placeholder = 'Contoh: Meja 05';
+            hint.innerText = 'Silakan masukkan nomor meja Anda saat ini.';
+            input.rows = 2;
+        }
+    }
+
+    // 2. Logika Efek Nyala pada Pilihan Metode Pembayaran
+    document.querySelectorAll('input[name="metode_pembayaran"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('.payment-option-label').forEach(el => el.classList.remove('active-pay'));
+            this.closest('.payment-option-label').classList.add('active-pay');
+        });
+    });
+</script>
 
 @endsection
