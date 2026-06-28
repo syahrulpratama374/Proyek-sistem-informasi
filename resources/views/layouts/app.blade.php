@@ -467,12 +467,12 @@
     </div>
 
     {{-- ════════════════════════════════════
-         NAVBAR
+         NAVBAR (SUDAH MENGGUNAKAN route() DINAMIS)
     ════════════════════════════════════ --}}
     <nav class="rm-nav">
 
         {{-- Brand --}}
-        <a href="/" class="rm-nav-brand">
+        <a href="{{ route('beranda') }}" class="rm-nav-brand">
             <svg class="rm-nav-brand-icon" viewBox="0 0 100 80" fill="none">
                 <path d="M50 5L62 30L85 10L75 55H25L15 10L38 30L50 5Z" fill="url(#nvg)" stroke="#C9A84C" stroke-width="1.5"/>
                 <path d="M50 30L56 42H44L50 30Z" fill="#8B6914"/>
@@ -491,7 +491,7 @@
         <div class="rm-nav-right">
 
             {{-- Keranjang --}}
-            <a href="/keranjang" class="rm-nav-link">
+            <a href="{{ route('keranjang.index') }}" class="rm-nav-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
                     <line x1="3" y1="6" x2="21" y2="6"/>
@@ -505,15 +505,15 @@
 
             @guest
                 <div class="rm-nav-sep"></div>
-                <a href="/login" class="rm-nav-login">Masuk</a>
-                <a href="/register" class="rm-nav-cta">Daftar</a>
+                <a href="{{ route('login') }}" class="rm-nav-login">Masuk</a>
+                <a href="{{ route('register') }}" class="rm-nav-cta">Daftar</a>
             @endguest
 
             @auth
                 <div class="rm-nav-sep"></div>
 
                 {{-- Riwayat --}}
-                <a href="/riwayat" class="rm-nav-link">
+                <a href="{{ route('riwayat.index') }}" class="rm-nav-link">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10"/>
                         <polyline points="12 6 12 12 16 14"/>
@@ -526,13 +526,13 @@
 
                 {{-- Admin / Kasir --}}
                 @if(Auth::check() && Auth::user()->role == 'admin')
-                    <a href="/admin/dashboard" class="rm-nav-admin">Dashboard</a>
+                    <a href="{{ route('admin.dashboard') }}" class="rm-nav-admin">Dashboard</a>
                 @elseif(Auth::check() && Auth::user()->role == 'kasir')
-                    <a href="/admin/pos" class="rm-nav-admin">Kasir</a>
+                    <a href="{{ route('kasir.pos') }}" class="rm-nav-admin">Kasir</a>
                 @endif
 
                 {{-- Logout --}}
-                <form action="/logout" method="POST" style="margin:0;">
+                <form action="{{ route('logout') }}" method="POST" style="margin:0;">
                     @csrf
                     <button type="submit" class="rm-nav-logout">Keluar</button>
                 </form>
@@ -560,7 +560,7 @@
     </div>
 
     {{-- ════════════════════════════════════
-         SCRIPTS
+         SCRIPTS 
     ════════════════════════════════════ --}}
     <script>
         // Partikel loader
@@ -588,6 +588,64 @@
                 }
             }, 2000);
         });
+    </script>
+
+{{-- ════════════════════════════════════
+         SISTEM NOTIFIKASI PESANAN (VERSI LOKAL MEMORI)
+    ════════════════════════════════════ --}}
+    <audio id="audioNotif" src="{{ asset('audio/notif.mp3') }}" preload="auto"></audio>
+    
+    <script>
+        function cekPesananBaru() {
+            let waktuSekarang = new Date().getTime();
+            
+            // Ambil ingatan jumlah pesanan dari otak browser. Kalau kosong, anggap 0.
+            let storedCount = localStorage.getItem('total_pesanan_ratuminang') || 0;
+
+            let urlRadar = '{{ route("admin.cekpesanan") }}?last_count=' + storedCount + '&t=' + waktuSekarang;
+
+            fetch(urlRadar, {
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 1. Jika ini pertama kali radar menyala, cukup simpan jumlah saat ini ke otak browser
+                if (storedCount == 0) {
+                    localStorage.setItem('total_pesanan_ratuminang', data.current_count);
+                    return;
+                }
+
+                // 2. JIKA ADA PESANAN BARU!
+                if (data.ada_baru && data.current_count > storedCount) {
+                    
+                    // Langsung update ingatan di otak browser agar tidak bunyi berulang-ulang
+                    localStorage.setItem('total_pesanan_ratuminang', data.current_count);
+                    
+                    // Mainkan suara
+                    let notifSound = document.getElementById('audioNotif');
+                    if (notifSound) {
+                        // Kita abaikan error dari browser agar script tidak crash
+                        let playPromise = notifSound.play();
+                        if (playPromise !== undefined) {
+                            playPromise.catch(error => { console.log('Suara dicekik browser, tidak apa-apa.'); });
+                        }
+                    }
+
+                    // Tunggu 2 detik (memberi waktu suara berbunyi), lalu refresh paksa!
+                    setTimeout(() => {
+                        window.location.reload(true);
+                    }, 2000);
+                }
+            })
+            .catch(error => console.log('Radar terganggu:', error));
+        }
+
+        // Jalankan radar setiap 5 detik
+        setInterval(cekPesananBaru, 5000);
+        cekPesananBaru();
     </script>
 
 </body>

@@ -60,12 +60,10 @@
                <td style="padding: 16px; text-align: center; border-bottom: 1px solid rgba(201, 168, 76, 0.15);">
                     <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
                         
-                        <!-- 🌟 TOMBOL BARU: MASUK KE HALAMAN DETAIL & CETAK STRUK 🌟 -->
                         <a href="/admin/pesanan/{{ $item->id }}" style="background: rgba(201, 168, 76, 0.1); border: 1px solid #C9A84C; color: #E8C97A; padding: 7px 12px; border-radius: 4px; text-decoration: none; font-weight: bold; font-family: 'Cinzel', serif; font-size: 10px; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
                             👁️ DETAIL
                         </a>
 
-                        <!-- FORM UPDATE STATUS LAMA MILIKMU -->
                         <form action="/admin/pesanan/{{ $item->id }}/status" method="POST" style="margin: 0; display: flex; gap: 8px;">
                             @csrf
                             <select name="status" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(201, 168, 76, 0.4); color: #FAF3E0; padding: 7px; border-radius: 4px; font-size: 12px; outline: none;">
@@ -83,9 +81,10 @@
             </tr>
             @empty
             <tr>
-                <td colspan="5" style="padding: 60px; text-align: center; color: rgba(250, 243, 224, 0.4); border-bottom: 1px solid rgba(201, 168, 76, 0.15);">
-                    <div style="font-size: 30px; margin-bottom: 10px; opacity: 0.5;">🛒</div>
-                    <div style="font-family: 'Cinzel', serif; letter-spacing: 1px;">Belum ada pesanan yang masuk ke dapur.</div>
+                <td colspan="5" style="padding: 80px 20px; text-align: center; border-bottom: none;">
+                    <div style="font-size: 60px; margin-bottom: 15px; opacity: 0.8;">🧑‍🍳</div>
+                    <h3 style="color: #E8C97A; font-family: 'Playfair Display', serif; margin: 0 0 10px 0; font-size: 24px;">Dapur Masih Tenang</h3>
+                    <p style="color: rgba(250, 243, 224, 0.6); font-family: 'Nunito Sans', sans-serif; font-size: 15px; margin: 0;">Belum ada pesanan yang masuk. Bersiaplah untuk melayani pelanggan berikutnya!</p>
                 </td>
             </tr>
             @endforelse
